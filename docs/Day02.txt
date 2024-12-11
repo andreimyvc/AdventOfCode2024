@@ -1,0 +1,295 @@
+﻿using System.Linq;
+
+namespace Day01.Challenges;
+public partial class Challege
+{
+    public static void Day02()
+    {
+        var lines = File.ReadAllLines("inputs/day02.txt")
+            .Select(p => p.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)) .ToArray())
+            .ToArray();
+
+        var x = lines.Where(p => p[0] == p[1]);
+
+        int count = 0;
+
+        foreach (var line in lines)
+        {
+            if (IsSafe(line))
+            {
+                count++;
+            }
+        }
+
+        Console.WriteLine("Parte 1: {0}", count);
+
+        count = 0;
+
+        foreach (var line in lines)
+        {
+            if (IsSafe3(line))
+            {
+                count++;
+                Console.WriteLine($"  Safe: {string.Join(' ', line)}");
+            }
+            else
+            {
+                Console.WriteLine($"Unsafe: {string.Join(' ', line)}");
+            }
+        }
+
+        Console.WriteLine("Parte 2: {0}", count);
+
+        Console.ReadLine();
+
+        bool IsSafe(int[]? line)
+        {
+            bool increassing = line![0] < line[1];
+
+            for (int i = 0; i < line.Length - 1; i++)
+            {
+                int current = line[i];
+                int next = line[i + 1];
+
+                if (current == next)
+                    return false;
+
+                if (Math.Abs(current - next) > 3)
+                    return false;
+
+                if (increassing && current > next)
+                    return false;
+
+                if(increassing == false && current <  next)
+                    return false;
+            }
+
+            return true;
+        }
+
+
+        bool IsSafe3(int[]? line)
+        {
+            var result = IsSafe(line);
+
+            if (result)
+                return result;
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                result = IsSafe(RemoveElementAt(line, i));
+
+                if (result)
+                    return result;
+            }
+
+            return false;
+        }
+
+        bool IsSafe2x(int[]? line)
+        {
+            bool increassing = line![0] < line[1];
+            int redFlag = 0;
+
+            int? current = line[0];
+            int? next = line[1];
+            int i = 1;
+
+            while(i + 1 < 5)
+            {
+                if (current == next)
+                { 
+                    redFlag ++;
+                    i++;
+                    next = line.ElementAtOrDefault(i);
+                    continue;
+                }
+
+                if (current != null && next != null && Math.Abs(current.Value - next.Value) > 3)
+                {
+                    redFlag++;
+                    i++;
+                    next = line.ElementAtOrDefault(i);
+                    continue;
+                }
+
+                if (increassing && current > next)
+                { 
+                    redFlag++;
+                    i++;
+                    next = line.ElementAtOrDefault(i);
+                    continue;
+                }
+
+                if (increassing == false && current < next)
+                {
+                    redFlag++;
+                    i++;
+                    next = line.ElementAtOrDefault(i);
+                    continue;
+                }
+
+                current = next;
+                i++;
+                next = line.ElementAtOrDefault(i);
+            }
+
+            return redFlag <= 1;
+        }
+        bool IsSafe2(int[]? line, int redFlag = 0)
+        {
+            int? current = line![0];
+            int? next = line[1];
+
+            bool? increassing = current < next ? true: (current == next? null: false);
+
+            int i = 1;
+
+            while(i + 1 <= line.Length)
+            {
+                if (redFlag > 1)
+                {
+                    return false;
+                }
+
+                if (current == next)
+                { 
+                    redFlag ++;
+                    
+                    if (redFlag > 1)
+                    {
+                        return false;
+                    }
+
+                    if (i > 0)
+                    {
+                        if (IsSafe2(RemoveElementAt(line, i - 1), redFlag))
+                        {
+                            return true;
+                        }
+                        else if (IsSafe2(RemoveElementAt(line, i), redFlag))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (IsSafe2(RemoveElementAt(line, i), redFlag))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                if (current != null && next != null && Math.Abs(current.Value - next.Value) > 3)
+                {
+                    redFlag++;
+
+                    if (i > 0)
+                    {
+                        if (IsSafe2(RemoveElementAt(line, i - 1), redFlag))
+                        {
+                            return true;
+                        }
+                        else if (IsSafe2(RemoveElementAt(line, i), redFlag))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (IsSafe2(RemoveElementAt(line, i), redFlag))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+                //1 3 2 3 4
+                if (increassing == true && current > next)
+                { 
+                    redFlag++;
+
+                    if (i > 0)
+                    {
+                        if (IsSafe2(RemoveElementAt(line, i - 1), redFlag))
+                        {
+                            return true;
+                        }
+                        else if (IsSafe2(RemoveElementAt(line, i), redFlag))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (IsSafe2(RemoveElementAt(line, i), redFlag))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                if (increassing == false && current < next)
+                {
+                    redFlag++;
+
+                    if (i > 0)
+                    {
+                        if (IsSafe2(RemoveElementAt(line, i - 1), redFlag))
+                        {
+                            return true;
+                        }
+                        else if (IsSafe2(RemoveElementAt(line, i), redFlag))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (IsSafe2(RemoveElementAt(line, i), redFlag))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                current = next;
+                i++;
+                next = line.ElementAtOrDefault(i);
+            }
+
+            return true;
+        }
+
+        int[] RemoveElementAt(int[]? array, int index)
+        {
+            int[]? result = new int[array!.Length - 1];
+            int j = 0;
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (i != index)
+                {
+                    result[j] = array[i];
+                    j++;
+                }
+            }
+
+            return result;
+        }
+    }
+}
+
+

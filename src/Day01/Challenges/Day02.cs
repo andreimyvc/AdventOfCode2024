@@ -1,4 +1,6 @@
-﻿namespace Day01.Challenges;
+﻿using System.Linq;
+
+namespace Day01.Challenges;
 public partial class Challege
 {
     public static void Day02()
@@ -7,18 +9,25 @@ public partial class Challege
             .Select(p => p.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)) .ToArray())
             .ToArray();
 
+        var x = lines.Where(p => p[0] == p[1]);
+
         int count = 0;
 
         foreach (var line in lines)
         {
-            if (IsSafe(line))
-            {
-                count++;
-            }
-
+            count += IsSafe(line) ? 1 : 0;
         }
 
         Console.WriteLine("Parte 1: {0}", count);
+
+        count = 0;
+
+        foreach (var line in lines)
+        {
+            count += IsSafe2(line) ? 1 : 0;
+        }
+
+        Console.WriteLine("Parte 2: {0}", count);
 
         Console.ReadLine();
 
@@ -46,5 +55,42 @@ public partial class Challege
 
             return true;
         }
+
+        bool IsSafe2(int[]? line)
+        {
+            var result = IsSafe(line);
+
+            if (result)
+                return result;
+
+            for (int i = 0; i < line!.Length; i++)
+            {
+                result = IsSafe(RemoveElementAt(line, i));
+
+                if (result)
+                    return result;
+            }
+
+            return false;
+        }
+
+        int[] RemoveElementAt(int[]? array, int index)
+        {
+            int[]? result = new int[array!.Length - 1];
+            int j = 0;
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (i != index)
+                {
+                    result[j] = array[i];
+                    j++;
+                }
+            }
+
+            return result;
+        }
     }
 }
+
+
