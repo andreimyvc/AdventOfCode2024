@@ -6,5 +6,6 @@ using Day01.Challenges;
 
 //Challege.Day02();
 
-Challege.Day03();
+//Challege.Day03();
+Challege.Day04();
 
